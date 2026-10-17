@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Your 2027: a three-minute intake that turns a dentist's goal into one Spear path. Prototype.">
+<title>Your 2027 · Spear</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a single centered column that behaves like a card inside the Spear LMS; quiz steps swap in place, result stacks path card → benchmark → what happens next → advisor view */
+:root{
+  --bg:#F6F8FD; --surface:#FFFFFF; --panel:#EEF2FB; --ink:#0F1633; --ink2:#44506B; --muted:#6B7690; --line:#D7E0F5;
+  --navy:#020381; --denim:#1863DC; --malibu:#57BFFA; --green:#0E8A6D; --green-bg:#E7F4F0; --amber:#B45309; --amber-bg:#FBF0E2; --gold:#C9A227;
+  --shadow:0 2px 18px rgba(2,3,129,.08);
+  --font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#0F1117; --surface:#171A23; --panel:#1F2330; --ink:#EDEFF7; --ink2:#B9C0D4; --muted:#8B93AB; --line:#2C3142; --navy:#9FA8FF; --denim:#4F8FF0; --malibu:#57BFFA; --green:#2FB58E; --green-bg:#16281F; --amber:#E0923A; --amber-bg:#2E2418; --gold:#E0BC4A; --shadow:0 2px 18px rgba(0,0,0,.45); color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#0F1117; --surface:#171A23; --panel:#1F2330; --ink:#EDEFF7; --ink2:#B9C0D4; --muted:#8B93AB; --line:#2C3142; --navy:#9FA8FF; --denim:#4F8FF0; --malibu:#57BFFA; --green:#2FB58E; --green-bg:#16281F; --amber:#E0923A; --amber-bg:#2E2418; --gold:#E0BC4A; --shadow:0 2px 18px rgba(0,0,0,.45); color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 60px}
+.wrap{max-width:860px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:.04em;font-size:22px;color:var(--navy)}
+.brand sup{font-size:9px;letter-spacing:0}
+.tag{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:28px}
+@media (max-width:520px){.card{padding:20px 16px}}
+h1{font-size:clamp(26px,4.5vw,36px);line-height:1.12;margin:6px 0 10px;font-weight:800;text-wrap:balance;color:var(--navy)}
+h2{font-size:22px;line-height:1.2;margin:0 0 6px;font-weight:800;text-wrap:balance}
+h3{font-size:14px;margin:0 0 6px;font-weight:700;color:var(--ink)}
+p{margin:0 0 12px;color:var(--ink2)}
+.lead{font-size:17px;color:var(--ink2);max-width:62ch}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--denim);margin-bottom:6px}
+.cta{background:var(--denim);color:#fff;border:none;border-radius:999px;padding:12px 22px;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer}
+.cta:disabled{opacity:.45;cursor:not-allowed}
+.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);border-radius:999px;padding:11px 18px;font-weight:600;font-family:inherit;font-size:14px;cursor:pointer}
+.cta:focus-visible,.ghost:focus-visible,.opt:focus-visible,.chip:focus-visible,button:focus-visible{outline:3px solid var(--malibu);outline-offset:2px}
+.prog{display:flex;gap:6px;margin:0 0 18px}
+.prog i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.prog i.on{background:var(--denim)}
+.qn{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:14px 0 18px}
+.opt{text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer;line-height:1.35}
+.opt small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.opt.on{border-color:var(--denim);background:var(--panel);box-shadow:inset 0 0 0 1px var(--denim)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+:root[data-theme="dark"] .chip.on, :root:not([data-theme="light"]) .chip.on{color:#0F1117}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .chip.on{color:#fff} }
+:root[data-theme="light"] .chip.on{color:#fff}
+textarea,input[type=text]{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:15px;background:var(--surface);color:var(--ink);resize:vertical}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+.note{font-size:12px;color:var(--muted)}
+/* result */
+.path{background:var(--navy);color:#EAF1FF;border-radius:18px;padding:26px;margin-top:18px}
+.path .eyebrow{color:var(--malibu)}
+.path h2{color:#fff;font-size:26px}
+.path p{color:#C9D6F5}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.step{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px;min-width:0}
+.step .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--malibu)}
+.step b{display:block;color:#fff;font-size:15px;margin:4px 0}
+.step span{display:block;font-size:13px;color:#C9D6F5}
+.step .when{margin-top:8px;font-size:12px;color:#fff;background:rgba(255,255,255,.12);display:inline-block;padding:3px 8px;border-radius:6px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.big{font-size:30px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.bar{height:10px;border-radius:5px;background:var(--panel);position:relative;margin:10px 0 6px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--denim);border-radius:5px}
+.bar em{position:absolute;top:-3px;width:3px;height:16px;background:var(--gold)}
+.legend{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.tl{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.tl li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+.tl .dot{width:28px;height:28px;border-radius:50%;background:var(--panel);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--navy)}
+.tl li.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.tl li.now .dot{background:var(--denim);border-color:var(--denim);color:#fff}
+.tl b{display:block;font-size:14px}
+.tl span{font-size:13px;color:var(--ink2)}
+.sim{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.adv{margin-top:18px;border:1.5px dashed var(--line);border-radius:14px;padding:18px;background:var(--panel)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:13px;margin-top:10px}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+@media (max-width:520px){.kv{grid-template-columns:1fr}}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--amber-bg);color:var(--amber)}
+.pill.ok{background:var(--green-bg);color:var(--green)}
+.pill.hot{background:var(--navy);color:#fff}
+.log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;max-height:190px;overflow:auto;color:var(--ink2)}
+.log div+div{margin-top:4px}
+.foot{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:no-preference){.card,.path{animation:in .25s ease-out}}
+@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><div class="brand">SPEAR<sup>®</sup></div><div class="tag">Prototype · Spear Online · Your 2027</div></div>
+
+  <!-- INTRO -->
+  <section class="card" id="intro">
+    <div class="eyebrow">Three minutes · seven questions</div>
+    <h1>What do you want 2027 to look like?</h1>
+    <p class="lead">Tell us where you are, where you want to be in December, and how you like to learn. We turn that into one path: the online work to start this week, the study club module that goes with it, and the hands-on course that finishes it, with a date and a city.</p>
+    <p class="note">Your home page will show your path instead of a catalog. You can change it any time.</p>
+    <div class="nav" style="justify-content:flex-start;gap:12px"><button class="cta" id="start">Set my 2027 goals</button><button class="ghost" id="demo">Fill with an example doctor</button></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="card" id="quiz" hidden>
+    <div class="prog" id="prog"></div>
+    <div id="qbody"></div>
+    <div class="nav"><button class="ghost" id="back">Back</button><span class="note" id="hint"></span><button class="cta" id="next">Next</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" hidden>
+    <div class="card">
+      <div class="eyebrow">Your 2027 path</div>
+      <h2 id="r-title">Endo, mastered by spring</h2>
+      <p id="r-sub" class="lead"></p>
+      <div class="path" id="r-path"></div>
+      <div class="row">
+        <div class="tile"><div class="eyebrow">Your number</div><div class="big" id="b-you">$3,000 / day</div><div class="bar"><i id="b-fill" style="width:50%"></i><em id="b-mark" style="left:42%"></em></div><div class="legend"><span>$2,000</span><span>Spear floor for your stage: <b id="b-floor">$2,500</b></span><span>$6,000+</span></div><p class="note" id="b-note" style="margin-top:8px"></p></div>
+        <div class="tile"><div class="eyebrow">What you told us</div><p id="r-echo" style="font-size:14px;margin:0"></p><p class="note" style="margin-top:10px">Your advisor sees this sentence, in your words, before any call.</p></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="eyebrow">What happens next</div>
+      <h2>The hand-offs, from your side</h2>
+      <p class="note">Each step below is a real event in Spear's system. Use the buttons to move the example doctor along the path and watch who gets involved and when.</p>
+      <ul class="tl" id="tl"></ul>
+      <div class="sim"><button class="ghost" data-sim="1">Simulate: start the online path</button><button class="ghost" data-sim="2">Simulate: 50% complete</button><button class="ghost" data-sim="3">Simulate: 100% complete</button><button class="ghost" data-sim="4">Simulate: 21 days idle</button><button class="ghost" data-sim="0">Reset</button></div>
+      <div class="adv">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div class="eyebrow" style="margin:0">Advisor view · what inside sales sees</div><span class="note">A CRM record, not a lead list. Nobody calls before the doctor has earned it.</span></div><span class="pill" id="a-status">Not yet started</span></div>
+        <dl class="kv" id="a-kv"></dl>
+        <div class="log" id="a-log"><div>No events yet.</div></div>
+      </div>
+    </div>
+    <div class="nav" style="margin-top:14px"><button class="ghost" id="redo">Change my answers</button><span class="note">Prototype. Course names and prices are Spear's public catalog; dates are illustrative.</span></div>
+  </section>
+
+  <div class="foot">Spear 2027 · "Your 2027" intake and path prototype · built for the exec team discussion · not a live Spear product</div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const GOALS={
+  case:{name:'Case acceptance',title:'Say it so they say yes',online:['Overcoming Barriers to Case Acceptance (self-paced, 6 courses)','Practice with the AI patient: 10 runs, scored'],club:'Study club module: Case Acceptance by case type',campus:{n:'Spear Growth Accelerator · See it. Say it.',w:'2 days · on the road',p:'$2,495 · $1,995 cohort rate',d:'Dallas · Feb 20 to 21, 2027'}},
+  tp:{name:'Treatment planning',title:'Plan the whole mouth with confidence',online:['Treatment Planning fundamentals (4 courses)','Facially Generated Treatment Planning: the sequence'],club:'Study club module: Esthetic and functional exam',campus:{n:'Treatment Planning with Confidence',w:'3 days · Scottsdale or Charlotte',p:'$5,995 · member rate applies',d:'Scottsdale · Mar 12 to 14, 2027'}},
+  cb:{name:'Crown and bridge speed',title:'Crowns in 70 minutes, every time',online:['Posterior Single Unit Crowns','Impressions and Scans · Crown Delivery and Cementation','Remote Crown Prep Proficiency: typodont shipped, scan scored'],club:'Study club module: Margins, tissues and scans',campus:{n:'Restorative Design',w:'3 days · Scottsdale',p:'$5,995 · member rate applies',d:'Scottsdale · Apr 9 to 11, 2027'}},
+  endo:{name:'Endo',title:'Endo, mastered by spring',online:['Approachable Clinical Endodontics','Local Anesthesia and Endodontic Emergencies','Case selection: which canals to keep in house'],club:'Study club module: Molar endo case review',campus:{n:'Comprehensive Clinical Endodontics',w:'3 days · Scottsdale',p:'$5,995 · $250 graduate credit when the online path is done',d:'Scottsdale · Mar 26 to 28, 2027 · 6 seats left'}},
+  impl:{name:'Implants',title:'From referral to restoring your own',online:['Introduction to Implants: Parts and Pieces','Implant planning: the restorative-driven workflow'],club:'Study club module: Single-tooth implant planning',campus:{n:'Implant Restorative Dentistry',w:'3 days · Scottsdale',p:'$5,995 · member rate applies',d:'Scottsdale · May 7 to 9, 2027'}},
+  align:{name:'Aligners',title:'Move teeth to protect the restorative plan',online:['Clear aligner online series (4 courses)','Ortho-restorative case selection'],club:'Study club module: Aligner sequencing',campus:{n:'Clear Aligner Essentials: Ortho-Restorative Integration',w:'2 days · Scottsdale',p:'$5,995 · member rate applies',d:'Scottsdale · Jun 4 to 5, 2027'}},
+  esth:{name:'Esthetics',title:'The anterior case, start to finish',online:['Anterior esthetics fundamentals (3 courses)','Photography that sells the case'],club:'Study club module: Anterior wax-up review',campus:{n:'Anterior Restorative Dentistry',w:'3 days · Scottsdale',p:'$5,995 · member rate applies',d:'Scottsdale · Apr 23 to 25, 2027'}},
+  occ:{name:'Occlusion and airway',title:'Why it keeps breaking, and what to do',online:['Occlusion fundamentals (4 courses)','Airway screening: STOP-BANG in the hygiene chair'],club:'Study club module: The worn dentition',campus:{n:'Occlusion in Clinical Practice',w:'3 days · Scottsdale',p:'$5,995 · member rate applies',d:'Scottsdale · May 21 to 23, 2027'}},
+  lead:{name:'Leading or owning a practice',title:'Lead the team you have, build the one you want',online:['Leading from Day One (cohort guide)','Reading your production report and P&L'],club:'Study club module: The hard conversation',campus:{n:'The Leadership / Management Bootcamp',w:'1 day · Scottsdale',p:'$995 · plus Know Before You Buy or Sell seminar',d:'Scottsdale · Mar 5, 2027'}},
+};
+const Q=[
+ {k:'years',t:'How long have you been practicing?',type:'one',o:[['0-2','0 to 2 years','Still finding your pace'],['3-5','3 to 5 years','Fast, and deciding what to be good at'],['6-10','6 to 10 years','Choosing a lane'],['10+','More than 10 years','Deepening the lane']]},
+ {k:'setting',t:'Where do you practice?',type:'one',o:[['dso','Associate in a group or DSO','Someone else sets the schedule and the fees'],['assoc','Associate in a private practice','Working toward a buy-in, or not sure yet'],['ppo','Owner, in network','You carry the PPO contracts'],['ffs','Owner, fee-for-service','You charge by complexity']]},
+ {k:'goals',t:'What do you want to master in 2027? Pick up to two.',type:'multi',max:2,o:Object.entries(GOALS).map(([k,g])=>[k,g.name])},
+ {k:'band',t:'Your production per day, roughly.',type:'one',o:[['lt3','Under $3,000','Often on a guarantee'],['3to4','$3,000 to $4,000','Core'],['4to6','$4,000 to $6,000','Growth'],['6p','Over $6,000','Mastery'],['none','I don’t track it','That is a goal by itself']]},
+ {k:'learn',t:'How do you like to learn? Pick everything that applies.',type:'multi',max:4,o:[['ondemand','On demand, on my own time'],['live','Live virtual sessions'],['campus','On campus in Scottsdale or Charlotte'],['near','Hands-on near me']]},
+ {k:'monday',t:'One Monday problem, in a sentence.',type:'text',ph:'The thing that happens in your operatory that you wish went differently.'},
+ {k:'city',t:'What city are you in?',type:'city',ph:'Dallas, TX'},
+];
+let A={goals:[],learn:[]}; let step=0;
+const bands={lt3:2500,'3to4':3500,'4to6':5000,'6p':6500,none:0};
+const floors={'0-2':2500,'3-5':3000,'6-10':3500,'10+':4000};
+
+function show(id){['intro','quiz','result'].forEach(s=>$('#'+s).hidden=(s!==id));window.scrollTo({top:0,behavior:'smooth'})}
+function renderQ(){
+  const q=Q[step]; const body=$('#qbody'); $('#prog').innerHTML=Q.map((_,i)=>`<i class="${i<=step?'on':''}"></i>`).join('');
+  let h=`<div class="qn">Question ${step+1} of ${Q.length}</div><h2>${q.t}</h2>`;
+  if(q.type==='one') h+=`<div class="opts">${q.o.map(o=>`<button class="opt ${A[q.k]===o[0]?'on':''}" data-v="${o[0]}">${o[1]}${o[2]?`<small>${o[2]}</small>`:''}</button>`).join('')}</div>`;
+  if(q.type==='multi') h+=`<div class="chips">${q.o.map(o=>`<button class="chip ${A[q.k].includes(o[0])?'on':''}" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>`;
+  if(q.type==='text') h+=`<textarea id="f-${q.k}" rows="3" placeholder="${q.ph}">${A[q.k]||''}</textarea>`;
+  if(q.type==='city') h+=`<input type="text" id="f-${q.k}" placeholder="${q.ph}" value="${A[q.k]||''}">`;
+  body.innerHTML=h;
+  body.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{A[q.k]=b.dataset.v;renderQ()});
+  body.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const v=b.dataset.v,arr=A[q.k];const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else if(arr.length<q.max)arr.push(v);renderQ()});
+  const ta=body.querySelector('textarea,input'); if(ta) ta.oninput=()=>{A[q.k]=ta.value;gate()};
+  $('#back').style.visibility=step?'visible':'hidden'; $('#next').textContent=step===Q.length-1?'Show my path':'Next'; gate();
+}
+function gate(){const q=Q[step];let ok=true;if(q.type==='one')ok=!!A[q.k];if(q.type==='multi')ok=A[q.k].length>0;if(q.type==='text'||q.type==='city')ok=(A[q.k]||'').trim().length>2;$('#next').disabled=!ok;$('#hint').textContent=q.type==='multi'?`${A[q.k].length} of ${q.max} chosen`:''}
+$('#start').onclick=()=>{step=0;show('quiz');renderQ()};
+$('#back').onclick=()=>{if(step>0){step--;renderQ()}};
+$('#next').onclick=()=>{if(step<Q.length-1){step++;renderQ()}else{renderResult();show('result')}};
+$('#redo').onclick=()=>{step=0;show('quiz');renderQ()};
+$('#demo').onclick=()=>{A={years:'3-5',setting:'dso',goals:['endo','case'],band:'lt3',learn:['ondemand','near'],monday:'I refer out every molar endo because I am not sure I can finish in the time I have, and the patient hears that as a no.',city:'Dallas, TX'};renderResult();show('result')};
+
+// ---- result
+let state={started:false,pct:0,idle:false,events:[]};
+function renderResult(){
+  const g=GOALS[A.goals[0]], g2=A.goals[1]?GOALS[A.goals[1]]:null;
+  $('#r-title').textContent=g.title;
+  $('#r-sub').textContent=`${g.name}${g2?' first, then '+g2.name.toLowerCase():''}. One path, three parts, finished ${g.campus.d.split('·')[1]?('by '+g.campus.d.split('·')[1].trim().replace(/ to \d+/,'').replace(', 2027','')):'this spring'}. Your home page shows only this until you change it.`;
+  $('#r-path').innerHTML=`<div class="eyebrow">${g.name} · the path</div><h2>Start this week. Finish in the room.</h2>
+   <div class="steps">
+    <div class="step"><div class="k">1 · Start here · online</div><b>${g.online[0]}</b><span>${g.online.slice(1).join(' · ')}</span><div class="when">About 4.5 hours · on demand</div></div>
+    <div class="step"><div class="k">2 · Practice here · your club</div><b>${g.club}</b><span>Scheduled with your study club leader, not optional.</span><div class="when">Week of Feb 9, 2027</div></div>
+    <div class="step"><div class="k">3 · Finish here · hands-on</div><b>${g.campus.n}</b><span>${g.campus.w} · ${g.campus.p}</span><div class="when">${g.campus.d}</div></div>
+   </div>
+   <p style="margin:14px 0 0;font-size:13px">${A.learn.includes('near')||A.learn.includes('campus')?'You said you learn best hands-on. A campus advisor will hold a seat on the date above until you say otherwise.':'You said on demand or live virtual. Nobody will call you about a seat until the online work is done; the date is there when you want it.'}</p>`;
+  const you=bands[A.band], floor=floors[A.years]; const span=4500;
+  $('#b-you').textContent=you?`$${you.toLocaleString()} / day`:'Not tracked';
+  $('#b-fill').style.width=you?`${Math.min(100,Math.max(4,(you-2000)/span*100))}%`:'0%';
+  $('#b-mark').style.left=`${(floor-2000)/span*100}%`; $('#b-floor').textContent='$'+floor.toLocaleString();
+  $('#b-note').textContent=you?(you<floor?`Below Spear's benchmark floor for ${A.years} years in practice. ${g.name} is one of the three levers that moves it; the path tracks it at 30, 60 and 90 days.`:`Above the floor for your stage. The path shifts from speed to service mix: ${g.name} is where the next band comes from.`):`Pick one number to track this quarter. The path starts with Track Dental KPIs That Drive Growth before anything clinical.`;
+  $('#r-echo').textContent='“'+A.monday+'”';
+  state={started:false,pct:0,idle:false,events:[]}; renderTL();
+}
+const TL=[
+ {k:'quiz',b:'Path set',s:'Your home page changes today. If you said hands-on, an advisor emails within 48 hours with the date, not a pitch.'},
+ {k:'start',b:'Online path started',s:'Weekly path email replaces the catalog email. Your study club leader gets your name for the module.'},
+ {k:'half',b:'Halfway',s:'Automated note with the next two sessions and a one-click seat hold. Still no call.'},
+ {k:'done',b:'Online path complete',s:'Within 24 hours an advisor reaches out: congratulations, your own words from question six, and the specific seat with the graduate credit.'},
+ {k:'seat',b:'In the room',s:'The course closes by setting your next path. The loop restarts.'},
+];
+function renderTL(){
+  const reached=k=>({quiz:true,start:state.started,half:state.pct>=50,done:state.pct>=100,seat:false})[k];
+  const nowK=!state.started?'quiz':state.pct<50?'start':state.pct<100?'half':'done';
+  $('#tl').innerHTML=TL.map((t,i)=>`<li class="${reached(t.k)?(t.k===nowK?'now':'done'):''}"><div class="dot">${reached(t.k)&&t.k!==nowK?'✓':i+1}</div><div><b>${t.b}</b><span>${t.s}</span></div></li>`).join('');
+  // advisor
+  const g=GOALS[A.goals[0]]; const hands=A.learn.includes('near')||A.learn.includes('campus');
+  const intent=(hands?40:10)+(state.pct>=100?50:state.pct>=50?25:state.started?10:0)+(A.band==='lt3'?5:0);
+  let status='Not yet started', cls='';
+  if(state.idle) {status='Stalled · faculty nudge';cls='';}
+  else if(state.pct>=100){status='Task: call within 24h';cls='hot'}
+  else if(state.pct>=50){status='Automated: seat hold sent';cls='ok'}
+  else if(hands){status='Warm: email within 48h';cls='ok'}
+  $('#a-status').textContent=status; $('#a-status').className='pill '+cls;
+  $('#a-kv').innerHTML=`<dt>Goal</dt><dd>${g.name}${A.goals[1]?' + '+GOALS[A.goals[1]].name:''}</dd><dt>Stage · setting</dt><dd>${A.years} yrs · ${({dso:'DSO associate',assoc:'private associate',ppo:'owner, in network',ffs:'owner, fee-for-service'})[A.setting]}</dd><dt>Production band</dt><dd>${({lt3:'under $3k/day',"3to4":'$3k to $4k',"4to6":'$4k to $6k',"6p":'$6k+',none:'not tracked'})[A.band]}</dd><dt>Learning preference</dt><dd>${A.learn.join(', ')}</dd><dt>City</dt><dd>${A.city}</dd><dt>Path progress</dt><dd>${state.started?state.pct+'%':'not started'}${state.idle?' · idle 21 days':''}</dd><dt>Intent score</dt><dd>${intent} / 100</dd><dt>Next seat</dt><dd>${g.campus.n} · ${g.campus.d}</dd><dt>Capacity check</dt><dd>${state.pct>=100?'Session at 24 of 30. Fire. (Had it been full: waitlist, no call.)':'n/a until completion'}</dd><dt>Talk track</dt><dd>Open with the goal in their words. Offer the seat, the credit, the date. Do not pitch anything else.</dd>`;
+  $('#a-log').innerHTML=state.events.length?state.events.map(e=>`<div>${e}</div>`).join(''):'<div>Quiz submitted → CRM contact updated (goal, stage, band, preference, city)'+(hands?' → task: advisor email within 48h</div>':'</div>');
+}
+function stamp(){const d=new Date();return d.toISOString().slice(0,16).replace('T',' ')}
+document.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>{
+  const n=+b.dataset.sim; const g=GOALS[A.goals[0]];
+  if(n===0){state={started:false,pct:0,idle:false,events:[]}}
+  if(n===1){state.started=true;state.pct=Math.max(state.pct,10);state.idle=false;state.events.push(`${stamp()} LMS: path_started (${g.name}) → CRM: path=started, weekly path email on, club leader notified`)}
+  if(n===2){state.started=true;state.pct=50;state.idle=false;state.events.push(`${stamp()} LMS: path_progress 50% → CRM workflow: send 'halfway' email with next 2 sessions + seat-hold link (no task)`)}
+  if(n===3){state.started=true;state.pct=100;state.idle=false;state.events.push(`${stamp()} LMS: path_completed → CRM: capacity check ${g.campus.n} (24/30 seats) → TASK to advisor, SLA 24h, graduate credit $250 applied`)}
+  if(n===4){state.started=true;state.idle=true;state.events.push(`${stamp()} LMS: no_activity_21d → CRM: nudge from faculty (not sales), path email paused`)}
+  renderTL();
+});
+})();
+</script>
+
+</body>
+</html>
